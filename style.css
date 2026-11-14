@@ -20,3 +20,10 @@ button { padding: 8px 14px; cursor: pointer; }
 #meterBar { height: 100%; width: 0; border-radius: 4px; transition: width .3s, background .3s; }
 label { display: block; margin: 8px 0; }
 #generateBtn { margin-top: 12px; width: 100%; }
+
+@media (prefers-color-scheme: dark) {
+  body { background: #111827; color: #e5e7eb; }
+  .card { background: #1f2937; }
+  input[type="text"] { background: #374151; color: #f9fafb; border: 1px solid #4b5563; }
+  button { background: #374151; color: #f9fafb; border: 1px solid #4b5563; }
+}

@@ -10,7 +10,33 @@
   <main>
     <h1>PassGen</h1>
     <p>Công cụ tạo và kiểm tra độ mạnh mật khẩu</p>
-    <div id="output"></div>
+
+    <section class="card">
+      <div class="output-row">
+        <input id="password" type="text" readonly placeholder="Mật khẩu sẽ hiện ở đây">
+        <button id="copyBtn" title="Sao chép">Sao chép</button>
+      </div>
+      <div class="meter"><div id="meterBar"></div></div>
+      <p id="strengthText"></p>
+    </section>
+
+    <section class="card">
+      <label>Độ dài: <span id="lengthValue">16</span></label>
+      <input id="length" type="range" min="8" max="64" value="16">
+
+      <label><input id="lower" type="checkbox" checked> Chữ thường (a-z)</label><br>
+      <label><input id="upper" type="checkbox" checked> Chữ hoa (A-Z)</label><br>
+      <label><input id="digits" type="checkbox" checked> Số (0-9)</label><br>
+      <label><input id="symbols" type="checkbox" checked> Ký tự đặc biệt</label>
+
+      <button id="generateBtn">Tạo mật khẩu mới</button>
+    </section>
+
+    <section class="card">
+      <h2>Kiểm tra mật khẩu của bạn</h2>
+      <input id="checkInput" type="text" placeholder="Nhập mật khẩu để kiểm tra">
+      <p id="checkResult"></p>
+    </section>
   </main>
   <script src="script.js"></script>
 </body>

@@ -43,3 +43,66 @@ function generatePassword(length, options) {
   }
   return chars.join("");
 }
+
+function estimateEntropy(pw) {
+  let pool = 0;
+  if (/[a-z]/.test(pw)) pool += 26;
+  if (/[A-Z]/.test(pw)) pool += 26;
+  if (/[0-9]/.test(pw)) pool += 10;
+  if (/[^a-zA-Z0-9]/.test(pw)) pool += 32;
+  return pool ? pw.length * Math.log2(pool) : 0;
+}
+
+function evaluate(pw) {
+  const common = ["123456", "password", "qwerty", "111111", "abc123"];
+  if (!pw) return { score: 0, label: "", color: "#e5e7eb", width: 0 };
+  if (common.some(c => pw.toLowerCase().includes(c)))
+    return { score: 0, label: "Rất yếu: chứa mẫu phổ biến", color: "#dc2626", width: 15 };
+  const bits = estimateEntropy(pw);
+  if (bits < 40) return { label: "Yếu", color: "#f97316", width: 35 };
+  if (bits < 60) return { label: "Trung bình", color: "#eab308", width: 65 };
+  return { label: "Mạnh", color: "#16a34a", width: 100 };
+}
+
+function showStrength(pw, barEl, textEl) {
+  const r = evaluate(pw);
+  barEl.style.width = r.width + "%";
+  barEl.style.background = r.color;
+  textEl.textContent = r.label;
+}
+
+const $ = id => document.getElementById(id);
+
+function readOptions() {
+  return {
+    lower: $("lower").checked,
+    upper: $("upper").checked,
+    digits: $("digits").checked,
+    symbols: $("symbols").checked
+  };
+}
+
+function refresh() {
+  try {
+    const pw = generatePassword(Number($("length").value), readOptions());
+    $("password").value = pw;
+    showStrength(pw, $("meterBar"), $("strengthText"));
+  } catch (e) {
+    $("password").value = "";
+    $("strengthText").textContent = e.message;
+  }
+}
+
+$("length").addEventListener("input", () => {
+  $("lengthValue").textContent = $("length").value;
+});
+$("generateBtn").addEventListener("click", refresh);
+$("copyBtn").addEventListener("click", () => {
+  navigator.clipboard.writeText($("password").value);
+});
+$("checkInput").addEventListener("input", e => {
+  const r = evaluate(e.target.value);
+  $("checkResult").textContent = r.label || "Nhập mật khẩu để xem đánh giá";
+});
+
+refresh();

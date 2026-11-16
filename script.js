@@ -106,3 +106,26 @@ $("checkInput").addEventListener("input", e => {
 });
 
 refresh();
+
+const history = [];
+
+function addToHistory(pw) {
+  history.unshift(pw);
+  if (history.length > 5) history.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = $("historyList");
+  list.innerHTML = "";
+  history.forEach(pw => {
+    const li = document.createElement("li");
+    const code = document.createElement("code");
+    code.textContent = pw;
+    const btn = document.createElement("button");
+    btn.textContent = "⧉";
+    btn.addEventListener("click", () => navigator.clipboard.writeText(pw));
+    li.append(code, " ", btn);
+    list.appendChild(li);
+  });
+}

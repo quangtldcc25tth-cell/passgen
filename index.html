@@ -9,8 +9,9 @@
 <body>
   <main>
     <h1>PassGen</h1>
-    <p>Công cụ tạo và kiểm tra độ mạnh mật khẩu</p>
-
+    <button id="langBtn">EN / VI</button>
+    <p data-i18n="subtitle">Công cụ tạo và kiểm tra độ mạnh mật khẩu</p>
+    
     <section class="card">
       <div class="output-row">
         <input id="password" type="text" readonly placeholder="Mật khẩu sẽ hiện ở đây">
@@ -21,20 +22,20 @@
     </section>
 
     <section class="card">
-      <label>Độ dài: <span id="lengthValue">16</span></label>
+      <label><span data-i18n="length">Độ dài: </span><span id="lengthValue" > 16</span></label>
       <input id="length" type="range" min="8" max="64" value="16">
 
-      <label><input id="lower" type="checkbox" checked> Chữ thường (a-z)</label><br>
-      <label><input id="upper" type="checkbox" checked> Chữ hoa (A-Z)</label><br>
-      <label><input id="digits" type="checkbox" checked> Số (0-9)</label><br>
-      <label><input id="symbols" type="checkbox" checked> Ký tự đặc biệt</label>
+      <label><input id="lower" type="checkbox" checked> <span data-i18n="lower">Chữ thường (a-z)</span></label>
+        <label><input id="upper" type="checkbox" checked> <span data-i18n="upper">Chữ hoa (A-Z)</span></label>
+        <label><input id="digits" type="checkbox" checked> <span data-i18n="digits">Số (0-9)</span></label>
+        <label><input id="symbols" type="checkbox" checked> <span data-i18n="symbols">Ký tự đặc biệt</span></label>
 
       <button id="generateBtn">Tạo mật khẩu mới</button>
     </section>
-
+    
     <section class="card">
-      <h2>Kiểm tra mật khẩu của bạn</h2>
-      <input id="checkInput" type="text" placeholder="Nhập mật khẩu để kiểm tra">
+        <h2 data-i18n="checkTitle">Kiểm tra mật khẩu của bạn</h2>
+        <input id="checkInput" type="text" placeholder="Nhập mật khẩu để kiểm tra">
       <p id="checkResult"></p>
     </section>
   </main>

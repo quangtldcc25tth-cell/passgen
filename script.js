@@ -55,20 +55,20 @@ function estimateEntropy(pw) {
 
 function evaluate(pw) {
   const common = ["123456", "password", "qwerty", "111111", "abc123"];
-  if (!pw) return { score: 0, label: "", color: "#e5e7eb", width: 0 };
+  if (!pw) return { key: "", color: "#e5e7eb", width: 0 };
   if (common.some(c => pw.toLowerCase().includes(c)))
-    return { score: 0, label: "Rất yếu: chứa mẫu phổ biến", color: "#dc2626", width: 15 };
+    return { key: "veryWeak", color: "#dc2626", width: 15 };
   const bits = estimateEntropy(pw);
-  if (bits < 40) return { label: "Yếu", color: "#f97316", width: 35 };
-  if (bits < 60) return { label: "Trung bình", color: "#eab308", width: 65 };
-  return { label: "Mạnh", color: "#16a34a", width: 100 };
+  if (bits < 40) return { key: "weak", color: "#f97316", width: 35 };
+  if (bits < 60) return { key: "medium", color: "#eab308", width: 65 };
+  return { key: "strong", color: "#16a34a", width: 100 };
 }
 
 function showStrength(pw, barEl, textEl) {
   const r = evaluate(pw);
   barEl.style.width = r.width + "%";
   barEl.style.background = r.color;
-  textEl.textContent = r.label;
+  textEl.textContent = r.key ? I18N[currentLang][r.key] : "";
 }
 
 const $ = id => document.getElementById(id);
@@ -102,7 +102,60 @@ $("copyBtn").addEventListener("click", () => {
 });
 $("checkInput").addEventListener("input", e => {
   const r = evaluate(e.target.value);
-  $("checkResult").textContent = r.label || "Nhập mật khẩu để xem đánh giá";
+  $("checkResult").textContent = r.key ? I18N[currentLang][r.key] : I18N[currentLang].checkPlaceholderResult;
 });
 
-refresh();
+const I18N = {
+  vi: {
+    subtitle: "Công cụ tạo và kiểm tra độ mạnh mật khẩu",
+    generate: "Tạo mật khẩu mới",
+    copy: "Sao chép",
+    length: "Độ dài",
+    lower: "Chữ thường (a-z)",
+    upper: "Chữ hoa (A-Z)",
+    digits: "Số (0-9)",
+    symbols: "Ký tự đặc biệt",
+    checkTitle: "Kiểm tra mật khẩu của bạn",
+    lengthLabel: "Độ dài",
+    veryWeak: "Rất yếu: chứa mẫu phổ biến", weak: "Yếu", medium: "Trung bình", strong: "Mạnh",
+    checkPlaceholderResult: "Nhập mật khẩu để xem đánh giá",
+    checkPlaceholder: "Nhập mật khẩu để kiểm tra"
+  },
+  en: {
+    subtitle: "A tool to generate and check password strength",
+    generate: "Generate new password",
+    copy: "Copy",
+    length: "Length",
+    lower: "Lowercase (a-z)",
+    upper: "Uppercase (A-Z)",
+    digits: "Digits (0-9)",
+    symbols: "Symbols",
+    checkTitle: "Check your password",
+    lengthLabel: "Length",
+    veryWeak: "Very weak: contains a common pattern", weak: "Weak", medium: "Medium", strong: "Strong",
+    checkPlaceholderResult: "Enter a password to see the rating",
+    checkPlaceholder: "Enter a password to check"
+  }
+};
+
+let currentLang = "vi";
+
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = I18N[lang][el.dataset.i18n];
+  });
+  $("generateBtn").textContent = I18N[lang].generate;
+  $("copyBtn").textContent = I18N[lang].copy;
+  $("checkInput").placeholder = I18N[lang].checkPlaceholder;
+  $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
+  $("copyBtn").title = I18N[lang].copy;
+
+    refresh()
+
+}
+
+$("langBtn").addEventListener("click", () => {
+  applyLang(currentLang === "vi" ? "en" : "vi");
+});

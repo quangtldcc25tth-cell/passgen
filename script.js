@@ -1,4 +1,4 @@
-// ===== Sinh mật khẩu =====
+// Bộ ký tự dùng để tạo mật khẩu
 const CHARSETS = {
   lower: "abcdefghijklmnopqrstuvwxyz",
   upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -37,6 +37,7 @@ function generatePassword(length, options) {
   while (chars.length < length) {
     chars.push(pool[randomInt(pool.length)]);
   }
+  // Xáo trộn mảng để các ký tự bắt buộc không nằm cố định ở đầu
   for (let i = chars.length - 1; i > 0; i--) {
     const j = randomInt(i + 1);
     [chars[i], chars[j]] = [chars[j], chars[i]];
@@ -46,7 +47,7 @@ function generatePassword(length, options) {
 
 const I18N_ERROR_NO_TYPE = "Phải chọn ít nhất một loại ký tự";
 
-// ===== Đánh giá độ mạnh =====
+// Tính entropy và đánh giá độ mạnh mật khẩu
 function estimateEntropy(pw) {
   let pool = 0;
   if (/[a-z]/.test(pw)) pool += 26;
@@ -67,7 +68,7 @@ function evaluate(pw) {
   return { key: "strong", color: "#16a34a", width: 100 };
 }
 
-// ===== Đa ngôn ngữ =====
+// Từ điển đa ngôn ngữ (Việt / Anh)
 const I18N = {
   vi: {
     subtitle: "Công cụ tạo và kiểm tra độ mạnh mật khẩu",
@@ -125,12 +126,11 @@ function applyLang(lang) {
   $("checkInput").placeholder = t("checkPlaceholder");
   $("password").placeholder = t("passwordPlaceholder");
   $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
-  // Cập nhật lại nhãn độ mạnh và kết quả kiểm tra theo ngôn ngữ mới
+  // Render lại text độ mạnh sau khi đổi ngôn ngữ
   showStrength(currentPw);
   showCheckResult($("checkInput").value);
 }
 
-// ===== Trạng thái =====
 let currentPw = "";
 const pwHistory = [];
 
@@ -156,7 +156,7 @@ function showCheckResult(value) {
   $("checkResult").textContent = r.key ? t(r.key) : t("checkPlaceholderResult");
 }
 
-// ===== Lịch sử trong phiên =====
+// Lưu tối đa 5 mật khẩu gần nhất trong phiên làm việc
 function addToHistory(pw) {
   pwHistory.unshift(pw);
   if (pwHistory.length > 5) pwHistory.pop();
@@ -180,7 +180,6 @@ function renderHistory() {
   if (box) box.style.display = pwHistory.length ? "block" : "none";
 }
 
-// ===== Luồng chính =====
 function refresh() {
   try {
     const pw = generatePassword(Number($("length").value), readOptions());
@@ -209,5 +208,22 @@ $("langBtn").addEventListener("click", () => {
   applyLang(currentLang === "vi" ? "en" : "vi");
 });
 
+// Chuyển đổi giao diện sáng / tối và lưu vào localStorage
+function applyTheme(mode) {
+  document.documentElement.classList.toggle("dark", mode === "dark");
+  $("themeBtn").textContent = mode === "dark" ? "🌙" : "☀️";
+  localStorage.setItem("theme", mode);
+}
+
+$("themeBtn").addEventListener("click", () => {
+  const isDark = document.documentElement.classList.contains("dark");
+  applyTheme(isDark ? "light" : "dark");
+});
+
+const savedTheme = localStorage.getItem("theme")
+  || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+applyTheme(savedTheme);
+
+// Khởi tạo trạng thái ban đầu khi tải trang
 applyLang("vi");
 refresh();

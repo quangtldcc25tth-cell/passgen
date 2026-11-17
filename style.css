@@ -1,29 +1,61 @@
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --text: #111827;
+  --input: #ffffff;
+  --border: #d1d5db;
+  --meter-bg: #e5e7eb;
+}
+
+html.dark {
+  --bg: #111827;
+  --card: #1f2937;
+  --text: #e5e7eb;
+  --input: #374151;
+  --border: #4b5563;
+  --meter-bg: #374151;
+}
+
 body {
   font-family: system-ui, sans-serif;
-  background: #f4f6f8;
+  background: var(--bg);
+  color: var(--text);
   margin: 0;
   padding: 24px;
 }
+
 main { max-width: 560px; margin: 0 auto; }
+
 .card {
-  background: #fff;
+  background: var(--card);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,.1);
 }
+
 .output-row { display: flex; gap: 8px; }
 .output-row input { flex: 1; font-family: monospace; font-size: 16px; padding: 8px; }
-input[type="text"] { padding: 8px; width: 100%; box-sizing: border-box; }
-button { padding: 8px 14px; cursor: pointer; }
-.meter { height: 8px; background: #e5e7eb; border-radius: 4px; margin: 12px 0 6px; }
+
+input[type="text"] {
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--input);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button {
+  padding: 8px 14px;
+  cursor: pointer;
+  background: var(--input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.meter { height: 8px; background: var(--meter-bg); border-radius: 4px; margin: 12px 0 6px; }
 #meterBar { height: 100%; width: 0; border-radius: 4px; transition: width .3s, background .3s; }
 label { display: block; margin: 8px 0; }
 #generateBtn { margin-top: 12px; width: 100%; }
-
-@media (prefers-color-scheme: dark) {
-  body { background: #111827; color: #e5e7eb; }
-  .card { background: #1f2937; }
-  input[type="text"] { background: #374151; color: #f9fafb; border: 1px solid #4b5563; }
-  button { background: #374151; color: #f9fafb; border: 1px solid #4b5563; }
-}

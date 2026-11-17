@@ -1,3 +1,4 @@
+// ===== Sinh mật khẩu =====
 const CHARSETS = {
   lower: "abcdefghijklmnopqrstuvwxyz",
   upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -26,7 +27,7 @@ function generatePassword(length, options) {
       required.push(CHARSETS[key]);
     }
   }
-  if (pool === "") throw new Error("Phải chọn ít nhất một loại ký tự");
+  if (pool === "") throw new Error(I18N_ERROR_NO_TYPE);
   if (length < required.length) throw new Error("Độ dài quá ngắn");
 
   const chars = [];
@@ -36,7 +37,6 @@ function generatePassword(length, options) {
   while (chars.length < length) {
     chars.push(pool[randomInt(pool.length)]);
   }
-  // Xáo trộn để các ký tự bắt buộc không luôn nằm đầu
   for (let i = chars.length - 1; i > 0; i--) {
     const j = randomInt(i + 1);
     [chars[i], chars[j]] = [chars[j], chars[i]];
@@ -44,6 +44,9 @@ function generatePassword(length, options) {
   return chars.join("");
 }
 
+const I18N_ERROR_NO_TYPE = "Phải chọn ít nhất một loại ký tự";
+
+// ===== Đánh giá độ mạnh =====
 function estimateEntropy(pw) {
   let pool = 0;
   if (/[a-z]/.test(pw)) pool += 26;
@@ -64,14 +67,72 @@ function evaluate(pw) {
   return { key: "strong", color: "#16a34a", width: 100 };
 }
 
-function showStrength(pw, barEl, textEl) {
-  const r = evaluate(pw);
-  barEl.style.width = r.width + "%";
-  barEl.style.background = r.color;
-  textEl.textContent = r.key ? I18N[currentLang][r.key] : "";
+// ===== Đa ngôn ngữ =====
+const I18N = {
+  vi: {
+    subtitle: "Công cụ tạo và kiểm tra độ mạnh mật khẩu",
+    lengthLabel: "Độ dài",
+    lower: "Chữ thường (a-z)",
+    upper: "Chữ hoa (A-Z)",
+    digits: "Số (0-9)",
+    symbols: "Ký tự đặc biệt",
+    generate: "Tạo mật khẩu mới",
+    copy: "Sao chép",
+    checkTitle: "Kiểm tra mật khẩu của bạn",
+    checkPlaceholder: "Nhập mật khẩu để kiểm tra",
+    checkPlaceholderResult: "Nhập mật khẩu để xem đánh giá",
+    passwordPlaceholder: "Mật khẩu sẽ hiện ở đây",
+    historyTitle: "Lịch sử",
+    veryWeak: "Rất yếu: chứa mẫu phổ biến",
+    weak: "Yếu",
+    medium: "Trung bình",
+    strong: "Mạnh"
+  },
+  en: {
+    subtitle: "A tool to generate and check password strength",
+    lengthLabel: "Length",
+    lower: "Lowercase (a-z)",
+    upper: "Uppercase (A-Z)",
+    digits: "Digits (0-9)",
+    symbols: "Symbols",
+    generate: "Generate new password",
+    copy: "Copy",
+    checkTitle: "Check your password",
+    checkPlaceholder: "Enter a password to check",
+    checkPlaceholderResult: "Enter a password to see the rating",
+    passwordPlaceholder: "Your password will appear here",
+    historyTitle: "History",
+    veryWeak: "Very weak: contains a common pattern",
+    weak: "Weak",
+    medium: "Medium",
+    strong: "Strong"
+  }
+};
+
+let currentLang = "vi";
+const $ = id => document.getElementById(id);
+const t = key => I18N[currentLang][key];
+
+function applyLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = I18N[lang][el.dataset.i18n];
+  });
+  $("generateBtn").textContent = t("generate");
+  $("copyBtn").textContent = t("copy");
+  $("copyBtn").title = t("copy");
+  $("checkInput").placeholder = t("checkPlaceholder");
+  $("password").placeholder = t("passwordPlaceholder");
+  $("langBtn").textContent = lang === "vi" ? "English" : "Tiếng Việt";
+  // Cập nhật lại nhãn độ mạnh và kết quả kiểm tra theo ngôn ngữ mới
+  showStrength(currentPw);
+  showCheckResult($("checkInput").value);
 }
 
-const $ = id => document.getElementById(id);
+// ===== Trạng thái =====
+let currentPw = "";
+const pwHistory = [];
 
 function readOptions() {
   return {
@@ -82,12 +143,53 @@ function readOptions() {
   };
 }
 
+function showStrength(pw) {
+  const r = evaluate(pw);
+  const bar = $("meterBar");
+  bar.style.width = r.width + "%";
+  bar.style.background = r.color;
+  $("strengthText").textContent = r.key ? t(r.key) : "";
+}
+
+function showCheckResult(value) {
+  const r = evaluate(value);
+  $("checkResult").textContent = r.key ? t(r.key) : t("checkPlaceholderResult");
+}
+
+// ===== Lịch sử trong phiên =====
+function addToHistory(pw) {
+  pwHistory.unshift(pw);
+  if (pwHistory.length > 5) pwHistory.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = $("historyList");
+  list.innerHTML = "";
+  pwHistory.forEach(pw => {
+    const li = document.createElement("li");
+    const code = document.createElement("code");
+    code.textContent = pw;
+    const btn = document.createElement("button");
+    btn.textContent = "⧉";
+    btn.addEventListener("click", () => navigator.clipboard.writeText(pw));
+    li.append(code, " ", btn);
+    list.appendChild(li);
+  });
+  const box = list.parentElement;
+  if (box) box.style.display = pwHistory.length ? "block" : "none";
+}
+
+// ===== Luồng chính =====
 function refresh() {
   try {
     const pw = generatePassword(Number($("length").value), readOptions());
+    currentPw = pw;
     $("password").value = pw;
-    showStrength(pw, $("meterBar"), $("strengthText"));
+    addToHistory(pw);
+    showStrength(pw);
   } catch (e) {
+    currentPw = "";
     $("password").value = "";
     $("strengthText").textContent = e.message;
   }
@@ -101,61 +203,11 @@ $("copyBtn").addEventListener("click", () => {
   navigator.clipboard.writeText($("password").value);
 });
 $("checkInput").addEventListener("input", e => {
-  const r = evaluate(e.target.value);
-  $("checkResult").textContent = r.key ? I18N[currentLang][r.key] : I18N[currentLang].checkPlaceholderResult;
+  showCheckResult(e.target.value);
 });
-
-const I18N = {
-  vi: {
-    subtitle: "Công cụ tạo và kiểm tra độ mạnh mật khẩu",
-    generate: "Tạo mật khẩu mới",
-    copy: "Sao chép",
-    length: "Độ dài",
-    lower: "Chữ thường (a-z)",
-    upper: "Chữ hoa (A-Z)",
-    digits: "Số (0-9)",
-    symbols: "Ký tự đặc biệt",
-    checkTitle: "Kiểm tra mật khẩu của bạn",
-    lengthLabel: "Độ dài",
-    veryWeak: "Rất yếu: chứa mẫu phổ biến", weak: "Yếu", medium: "Trung bình", strong: "Mạnh",
-    checkPlaceholderResult: "Nhập mật khẩu để xem đánh giá",
-    checkPlaceholder: "Nhập mật khẩu để kiểm tra"
-  },
-  en: {
-    subtitle: "A tool to generate and check password strength",
-    generate: "Generate new password",
-    copy: "Copy",
-    length: "Length",
-    lower: "Lowercase (a-z)",
-    upper: "Uppercase (A-Z)",
-    digits: "Digits (0-9)",
-    symbols: "Symbols",
-    checkTitle: "Check your password",
-    lengthLabel: "Length",
-    veryWeak: "Very weak: contains a common pattern", weak: "Weak", medium: "Medium", strong: "Strong",
-    checkPlaceholderResult: "Enter a password to see the rating",
-    checkPlaceholder: "Enter a password to check"
-  }
-};
-
-let currentLang = "vi";
-
-function applyLang(lang) {
-  currentLang = lang;
-  document.documentElement.lang = lang;
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    el.textContent = I18N[lang][el.dataset.i18n];
-  });
-  $("generateBtn").textContent = I18N[lang].generate;
-  $("copyBtn").textContent = I18N[lang].copy;
-  $("checkInput").placeholder = I18N[lang].checkPlaceholder;
-  $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
-  $("copyBtn").title = I18N[lang].copy;
-
-    refresh()
-
-}
-
 $("langBtn").addEventListener("click", () => {
   applyLang(currentLang === "vi" ? "en" : "vi");
 });
+
+applyLang("vi");
+refresh();

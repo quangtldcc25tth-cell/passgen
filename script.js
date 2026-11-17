@@ -124,7 +124,7 @@ function applyLang(lang) {
   $("copyBtn").title = t("copy");
   $("checkInput").placeholder = t("checkPlaceholder");
   $("password").placeholder = t("passwordPlaceholder");
-  $("langBtn").textContent = lang === "vi" ? "English" : "Tiếng Việt";
+  $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
   // Cập nhật lại nhãn độ mạnh và kết quả kiểm tra theo ngôn ngữ mới
   showStrength(currentPw);
   showCheckResult($("checkInput").value);

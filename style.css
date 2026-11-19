@@ -190,7 +190,7 @@ label {
   white-space: nowrap;
 }
 
-/* Chân trang */
+/* footer */
 footer {
   text-align: center;
   margin-top: 24px;
@@ -198,7 +198,7 @@ footer {
   font-size: 14px;
 }
 
-/* Giao diện màn hình nhỏ */
+/* Giao diện màn hình điện thoại  */
 @media (max-width: 800px) {
   main.main-content {
     grid-template-columns: 1fr;

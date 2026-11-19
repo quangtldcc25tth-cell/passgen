@@ -83,11 +83,18 @@ const I18N = {
     checkPlaceholder: "Nhập mật khẩu để kiểm tra",
     checkPlaceholderResult: "Nhập mật khẩu để xem đánh giá",
     passwordPlaceholder: "Mật khẩu sẽ hiện ở đây",
-    historyTitle: "Lịch sử",
+    historyTitle: "Lịch sử (tối đa 100 mật khẩu)",
     veryWeak: "Rất yếu: chứa mẫu phổ biến",
     weak: "Yếu",
     medium: "Trung bình",
-    strong: "Mạnh"
+    strong: "Mạnh",
+    tipLength: "Dùng ít nhất 12 ký tự",
+    tipLower: "Thêm chữ thường (a-z)",
+    tipUpper: "Thêm chữ hoa (A-Z)",
+    tipDigits: "Thêm số (0-9)",
+    tipSymbols: "Thêm ký tự đặc biệt (!@#$...)",
+    tipCommon: "Tránh các cụm từ phổ biến và dễ đoán",
+    tipGood: "Mật khẩu đã đủ tốt",
   },
   en: {
     subtitle: "A tool to generate and check password strength",
@@ -102,11 +109,18 @@ const I18N = {
     checkPlaceholder: "Enter a password to check",
     checkPlaceholderResult: "Enter a password to see the rating",
     passwordPlaceholder: "Your password will appear here",
-    historyTitle: "History",
+    historyTitle: "History (up to 100 passwords)",
     veryWeak: "Very weak: contains a common pattern",
     weak: "Weak",
     medium: "Medium",
-    strong: "Strong"
+    strong: "Strong",
+    tipLength: "Use at least 12 characters",
+    tipLower: "Add lowercase letters (a-z)",
+    tipUpper: "Add uppercase letters (A-Z)",
+    tipDigits: "Add digits (0-9)",
+    tipSymbols: "Add symbols (!@#$...)",
+    tipCommon: "Avoid common or predictable words",
+    tipGood: "This password is strong enough",
   }
 };
 
@@ -129,6 +143,7 @@ function applyLang(lang) {
   // Render lại text độ mạnh sau khi đổi ngôn ngữ
   showStrength(currentPw);
   showCheckResult($("checkInput").value);
+  showSuggestions($("checkInput").value);
 }
 
 let currentPw = "";
@@ -151,15 +166,39 @@ function showStrength(pw) {
   $("strengthText").textContent = r.key ? t(r.key) : "";
 }
 
+function getSuggestions(pw) {
+  const tips = [];
+  if (!pw) return tips;
+  const common = ["123456", "password", "qwerty", "111111", "abc123"];
+  if (common.some(c => pw.toLowerCase().includes(c))) tips.push(t("tipCommon"));
+  if (pw.length < 12) tips.push(t("tipLength"));
+  if (!/[a-z]/.test(pw)) tips.push(t("tipLower"));
+  if (!/[A-Z]/.test(pw)) tips.push(t("tipUpper"));
+  if (!/[0-9]/.test(pw)) tips.push(t("tipDigits"));
+  if (!/[^a-zA-Z0-9]/.test(pw)) tips.push(t("tipSymbols"));
+  if (tips.length === 0) tips.push(t("tipGood"));
+  return tips;
+}
+
+function showSuggestions(value) {
+  const list = $("suggestions");
+  list.innerHTML = "";
+  getSuggestions(value).forEach(text => {
+    const li = document.createElement("li");
+    li.textContent = text;
+    list.appendChild(li);
+  });
+}
+
 function showCheckResult(value) {
   const r = evaluate(value);
   $("checkResult").textContent = r.key ? t(r.key) : t("checkPlaceholderResult");
 }
 
-// Lưu tối đa 5 mật khẩu gần nhất trong phiên làm việc
+// Lưu tối đa 100 mật khẩu ngẫu nhiên 
 function addToHistory(pw) {
   pwHistory.unshift(pw);
-  if (pwHistory.length > 5) pwHistory.pop();
+  if (pwHistory.length > 100) pwHistory.pop();
   renderHistory();
 }
 
@@ -203,12 +242,13 @@ $("copyBtn").addEventListener("click", () => {
 });
 $("checkInput").addEventListener("input", e => {
   showCheckResult(e.target.value);
+  showSuggestions(e.target.value);
 });
 $("langBtn").addEventListener("click", () => {
   applyLang(currentLang === "vi" ? "en" : "vi");
 });
 
-// Chuyển đổi giao diện sáng / tối và lưu vào localStorage
+// Chuyển đổi giao diện sáng / tối
 function applyTheme(mode) {
   document.documentElement.classList.toggle("dark", mode === "dark");
   $("themeBtn").textContent = mode === "dark" ? "🌙" : "☀️";

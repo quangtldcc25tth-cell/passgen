@@ -40,7 +40,10 @@
     
   <section class="checker">
       <h2 data-i18n="checkTitle">Kiểm tra mật khẩu của bạn</h2>
-      <input id="checkInput" type="text" placeholder="Nhập mật khẩu để kiểm tra">
+      <div class="output-row">
+        <input id="checkInput" type="password" autocomplete="off" placeholder="Nhập mật khẩu để kiểm tra">
+        <button id="toggleCheckBtn" type="button" title="Hiện mật khẩu">👁</button>
+      </div>
       <p id="checkResult"></p>
       <ul id="suggestions"></ul>
     </section>

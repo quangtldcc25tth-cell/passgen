@@ -95,6 +95,8 @@ const I18N = {
     tipSymbols: "Thêm ký tự đặc biệt (!@#$...)",
     tipCommon: "Tránh các cụm từ phổ biến và dễ đoán",
     tipGood: "Mật khẩu đã đủ tốt",
+    showPw: "Hiện mật khẩu",
+    hidePw: "Ẩn mật khẩu",
   },
   en: {
     subtitle: "A tool to generate and check password strength",
@@ -121,6 +123,8 @@ const I18N = {
     tipSymbols: "Add symbols (!@#$...)",
     tipCommon: "Avoid common or predictable words",
     tipGood: "This password is strong enough",
+    showPw: "Show password",
+    hidePw: "Hide password",
   }
 };
 
@@ -140,6 +144,8 @@ function applyLang(lang) {
   $("checkInput").placeholder = t("checkPlaceholder");
   $("password").placeholder = t("passwordPlaceholder");
   $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
+  $("toggleCheckBtn").title = $("checkInput").type === "password" ? t("showPw") : t("hidePw");
+  
   
   // Render lại text độ mạnh sau khi đổi ngôn ngữ
   showStrength(currentPw);
@@ -244,6 +250,13 @@ $("copyBtn").addEventListener("click", () => {
 $("checkInput").addEventListener("input", e => {
   showCheckResult(e.target.value);
   showSuggestions(e.target.value);
+});
+$("toggleCheckBtn").addEventListener("click", () => {
+  const input = $("checkInput");
+  const willShow = input.type === "password";
+  input.type = willShow ? "text" : "password";
+  $("toggleCheckBtn").textContent = willShow ? "🙈" : "👁";
+  $("toggleCheckBtn").title = willShow ? t("hidePw") : t("showPw");
 });
 $("langBtn").addEventListener("click", () => {
   applyLang(currentLang === "vi" ? "en" : "vi");

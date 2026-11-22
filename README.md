@@ -25,9 +25,11 @@ Bản chạy trực tiếp: https://github.com/quangtldcc25tth-cell/passgen.git
 Dự án không cần cài đặt thư viện hay công cụ build.
 
 1. Tải mã nguồn:
+    ```
     bash
-    git clone https://github.com/quangtldcc25tth-cell/passgen.git
+    git clone [https://github.com/quangtldcc25tth-cell/passgen.git](https://github.com/quangtldcc25tth-cell/passgen.git)
     cd passgen
+    ```
    
 2. Mở file `index.html` bằng trình duyệt.
 

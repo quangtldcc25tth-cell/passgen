@@ -21,7 +21,7 @@
 
     <section class="generator">
       <div class="output-row">
-        <input id="password" type="text" readonly>
+        <div id="passwordDisplay" class="pw-display" tabindex="0"></div>
         <button id="copyBtn" title="Sao chép">Sao chép</button>
       </div>
       <div class="meter"><div id="meterBar"></div></div>
@@ -44,11 +44,12 @@
       <label><input id="upper" type="checkbox" checked> <span data-i18n="upper">Chữ hoa (A-Z)</span></label>
       <label><input id="digits" type="checkbox" checked> <span data-i18n="digits">Số (0-9)</span></label>
       <label><input id="symbols" type="checkbox" checked> <span data-i18n="symbols">Ký tự đặc biệt</span></label>
+      <label><input id="colorize" type="checkbox" checked> <span data-i18n="colorize">Tô màu phân loại ký tự</span></label>
 
       <button id="generateBtn">Tạo mật khẩu mới</button>
     </section>
-    
-  <section class="checker">
+
+    <section class="checker">
       <h2 data-i18n="checkTitle">Kiểm tra mật khẩu của bạn</h2>
       <div class="output-row">
         <input id="checkInput" type="password" autocomplete="off" placeholder="Nhập mật khẩu để kiểm tra">
@@ -69,7 +70,7 @@
   </main>
 
   <footer class="footer">
-        © 2026 PassGen - Tran Lam Dang Quang - CC25TT - 25TH2519
+    © 2026 PassGen - Tran Lam Dang Quang - CC25TT - 25TH2519
   </footer>
 
   <script src="script.js"></script>

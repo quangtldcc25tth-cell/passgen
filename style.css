@@ -86,7 +86,6 @@ main.main-content {
 .history h2,
 .checker h2 {
   margin-top: 0;
-  
 }
 
 /* Ô hiện mật khẩu */
@@ -94,7 +93,6 @@ main.main-content {
   display: flex;
   flex-wrap: nowrap;
   gap: 8px;
-
 }
 
 .output-row input {
@@ -106,13 +104,65 @@ main.main-content {
   padding: 8px;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
   width: 100%;
   padding: 8px;
   background: var(--input);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 6px;
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* Khung hiển thị mật khẩu có tô màu ký tự */
+.pw-display {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 40px;
+  font-family: monospace;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  padding: 8px;
+  background: var(--input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-x: auto;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  user-select: all;
+}
+
+.pw-display:empty::before {
+  content: attr(data-placeholder);
+  opacity: 0.5;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+}
+
+/* Màu ký tự: Chữ màu thường, Số màu xanh, Ký tự đặc biệt màu đỏ cam */
+.ch-digit {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.ch-symbol {
+  color: #ea580c;
+  font-weight: 600;
+}
+
+html.dark .ch-digit {
+  color: #60a5fa;
+}
+
+html.dark .ch-symbol {
+  color: #fb923c;
 }
 
 /* Các nút bấm */
@@ -141,6 +191,17 @@ button:hover {
   border: none;
 }
 
+#toggleCheckBtn {
+  width: 44px;
+  height: 38px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
 /* Thanh đo độ mạnh */
 .meter {
   height: 8px;
@@ -161,6 +222,12 @@ button:hover {
   margin: 4px 0 0;
 }
 
+.crack {
+  margin: 4px 0 0;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
 /* Các checkbox chọn ký tự */
 label {
   display: flex;
@@ -169,96 +236,7 @@ label {
   margin: 6px 0;
 }
 
-/* Danh sách lịch sử */
-#historyList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-#historyList li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-#historyList code {
-  font-family: monospace;
-  white-space: nowrap;
-}
-
-/* footer */
-footer {
-  text-align: center;
-  margin-top: 24px;
-  opacity: 0.7;
-  font-size: 14px;
-}
-
-/* Giao diện màn hình điện thoại  */
-@media (max-width: 800px) {
-  main.main-content {
-    grid-template-columns: 1fr;
-  }
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-}
-
-.checker{
-  height: 100%;
-}
-
-#suggestions {
-  margin: 8px 0 0;
-  padding-left: 18px;
-  font-size: 14px;
-  opacity: 0.85;
-}
-
-input[type="text"],
-input[type="password"] {
-  width: 100%;
-  padding: 8px;
-  background: var(--input);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-}
-
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none;
-}
-
-#toggleCheckBtn {
-  width: 44px;
-  height: 38px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  line-height: 1;
-}
-
-.history-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.history-head h2 {
-  margin: 0;
-}
-
+/* Bộ chỉnh độ dài */
 .length-control {
   margin: 12px 0;
 }
@@ -303,11 +281,13 @@ input[type="password"]::-ms-clear {
   border: 1px solid var(--border);
   border-radius: 6px;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 #lengthInput::-webkit-outer-spin-button,
 #lengthInput::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
@@ -316,8 +296,67 @@ input[type="password"]::-ms-clear {
   margin: 0;
 }
 
-.crack {
-  margin: 4px 0 0;
+/* Khối kiểm tra mật khẩu */
+.checker {
+  height: 100%;
+}
+
+#suggestions {
+  margin: 8px 0 0;
+  padding-left: 18px;
   font-size: 14px;
   opacity: 0.85;
+}
+
+/* Danh sách lịch sử */
+.history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.history-head h2 {
+  margin: 0;
+}
+
+#historyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#historyList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+#historyList code {
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: 24px;
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+/* Giao diện màn hình điện thoại */
+@media (max-width: 800px) {
+  main.main-content {
+    grid-template-columns: 1fr;
+  }
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }

@@ -79,6 +79,7 @@ const I18N = {
     symbols: "Ký tự đặc biệt",
     generate: "Tạo mật khẩu mới",
     copy: "Sao chép",
+    copied: "Đã sao chép ✓",
     checkTitle: "Kiểm tra mật khẩu của bạn",
     checkPlaceholder: "Nhập mật khẩu để kiểm tra",
     checkPlaceholderResult: "Nhập mật khẩu để xem đánh giá",
@@ -110,8 +111,7 @@ const I18N = {
     unitThousandYear: "nghìn năm",
     unitMillionYear: "triệu năm",
     crackOverBillion: "hơn 1 tỷ năm",
-    copy: "Sao chép",
-    copied: "Đã sao chép ✓",
+    colorize: "Tô màu phân loại ký tự",
   },
   en: {
     subtitle: "A tool to generate and check password strength",
@@ -122,11 +122,12 @@ const I18N = {
     symbols: "Symbols",
     generate: "Generate new password",
     copy: "Copy",
+    copied: "Copied ✓",
     checkTitle: "Check your password",
     checkPlaceholder: "Enter a password to check",
     checkPlaceholderResult: "Enter a password to see the rating",
     passwordPlaceholder: "Your password will appear here",
-    historyTitle: "History (up to 100 passwords)  ",
+    historyTitle: "History (up to 100 passwords)",
     veryWeak: "Very weak: contains a common pattern",
     weak: "Weak",
     medium: "Medium",
@@ -153,8 +154,7 @@ const I18N = {
     unitThousandYear: "thousand years",
     unitMillionYear: "million years",
     crackOverBillion: "over 1 billion years",
-    copy: "Copy",
-    copied: "Copied ✓",
+    colorize: "Colorize character types",
   }
 };
 
@@ -169,10 +169,8 @@ function applyLang(lang) {
     el.textContent = I18N[lang][el.dataset.i18n];
   });
   $("generateBtn").textContent = t("generate");
-  $("copyBtn").textContent = t("copy");
-  $("copyBtn").title = t("copy");
   $("checkInput").placeholder = t("checkPlaceholder");
-  $("password").placeholder = t("passwordPlaceholder");
+  $("passwordDisplay").dataset.placeholder = t("passwordPlaceholder");
   $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
   $("toggleCheckBtn").title = $("checkInput").type === "password" ? t("showPw") : t("hidePw");
   $("clearHistoryBtn").textContent = t("clearHistory");
@@ -269,11 +267,33 @@ function showCheckResult(value) {
   $("crackCheck").textContent = crackText(value);
 }
 
-// Lưu tối đa 100 mật khẩu ngẫu nhiên 
+// Lưu tối đa 100 mật khẩu ngẫu nhiên
 function addToHistory(pw) {
   pwHistory.unshift(pw);
   if (pwHistory.length > 100) pwHistory.pop();
   renderHistory();
+}
+
+function renderPassword(targetEl, pw) {
+  targetEl.innerHTML = "";
+  if (!pw) return;
+
+  const isColorOn = $("colorize").checked;
+  if (!isColorOn) {
+    targetEl.textContent = pw;
+    return;
+  }
+
+  for (const ch of pw) {
+    const span = document.createElement("span");
+    span.textContent = ch;
+    if (/[0-9]/.test(ch)) {
+      span.className = "ch-digit";
+    } else if (/[^a-zA-Z0-9]/.test(ch)) {
+      span.className = "ch-symbol";
+    }
+    targetEl.appendChild(span);
+  }
 }
 
 function renderHistory() {
@@ -282,7 +302,7 @@ function renderHistory() {
   pwHistory.forEach(pw => {
     const li = document.createElement("li");
     const code = document.createElement("code");
-    code.textContent = pw;
+    renderPassword(code, pw);
     const btn = document.createElement("button");
     btn.textContent = "⧉";
     btn.addEventListener("click", () => copyText(pw, btn, "⧉"));
@@ -297,12 +317,12 @@ function refresh() {
   try {
     const pw = generatePassword(Number($("length").value), readOptions());
     currentPw = pw;
-    $("password").value = pw;
+    renderPassword($("passwordDisplay"), pw);
     addToHistory(pw);
     showStrength(pw);
   } catch (e) {
     currentPw = "";
-    $("password").value = "";
+    renderPassword($("passwordDisplay"), "");
     $("strengthText").textContent = e.message;
     $("crackGen").textContent = "";
   }
@@ -328,7 +348,7 @@ $("length").addEventListener("input", e => {
 // Nhập trực tiếp vào ô số
 $("lengthInput").addEventListener("input", e => {
   const val = e.target.value;
-  if (val === "") return; // Cho phép người dùng xóa tạm để gõ số mới
+  if (val === "") return;
   const num = Number(val);
   if (num >= 8 && num <= 64) {
     $("length").value = num;
@@ -363,12 +383,14 @@ function copyText(text, btn, restoreLabel) {
 }
 
 $("copyBtn").addEventListener("click", () => {
-  copyText($("password").value, $("copyBtn"), () => t("copy"));
+  copyText(currentPw, $("copyBtn"), () => t("copy"));
 });
+
 $("checkInput").addEventListener("input", e => {
   showCheckResult(e.target.value);
   showSuggestions(e.target.value);
 });
+
 $("toggleCheckBtn").addEventListener("click", () => {
   const input = $("checkInput");
   const willShow = input.type === "password";
@@ -376,11 +398,20 @@ $("toggleCheckBtn").addEventListener("click", () => {
   $("toggleCheckBtn").textContent = willShow ? "🙈" : "👁";
   $("toggleCheckBtn").title = willShow ? t("hidePw") : t("showPw");
 });
+
 $("langBtn").addEventListener("click", () => {
   applyLang(currentLang === "vi" ? "en" : "vi");
 });
+
 $("clearHistoryBtn").addEventListener("click", () => {
   pwHistory.length = 0;
+  renderHistory();
+});
+
+$("colorize").checked = localStorage.getItem("colorize") !== "false";
+$("colorize").addEventListener("change", e => {
+  localStorage.setItem("colorize", e.target.checked);
+  renderPassword($("passwordDisplay"), currentPw);
   renderHistory();
 });
 

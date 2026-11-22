@@ -18,7 +18,7 @@ Giao diện PassGen
 
 ## Demo
 
-Bản chạy trực tiếp: https://<tên-github>.github.io/passgen/
+Bản chạy trực tiếp: https://github.com/quangtldcc25tth-cell/passgen.git
 
 ## Chạy trên máy
 

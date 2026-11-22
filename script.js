@@ -109,7 +109,7 @@ const I18N = {
     checkPlaceholder: "Enter a password to check",
     checkPlaceholderResult: "Enter a password to see the rating",
     passwordPlaceholder: "Your password will appear here",
-    historyTitle: "History (up to 100 passwords)",
+    historyTitle: "History (up to 100 passwords)  ",
     veryWeak: "Very weak: contains a common pattern",
     weak: "Weak",
     medium: "Medium",
@@ -140,6 +140,7 @@ function applyLang(lang) {
   $("checkInput").placeholder = t("checkPlaceholder");
   $("password").placeholder = t("passwordPlaceholder");
   $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
+  
   // Render lại text độ mạnh sau khi đổi ngôn ngữ
   showStrength(currentPw);
   showCheckResult($("checkInput").value);

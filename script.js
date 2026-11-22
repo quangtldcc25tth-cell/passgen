@@ -72,7 +72,7 @@ function evaluate(pw) {
 const I18N = {
   vi: {
     subtitle: "Công cụ tạo và kiểm tra độ mạnh mật khẩu",
-    lengthLabel: "Độ dài",
+    lengthLabel: "Độ dài (8-64)",
     lower: "Chữ thường (a-z)",
     upper: "Chữ hoa (A-Z)",
     digits: "Số (0-9)",
@@ -97,10 +97,13 @@ const I18N = {
     tipGood: "Mật khẩu đã đủ tốt",
     showPw: "Hiện mật khẩu",
     hidePw: "Ẩn mật khẩu",
+    clearHistory: "Xóa lịch sử",
+    decLength: "Giảm độ dài",
+    incLength: "Tăng độ dài",
   },
   en: {
     subtitle: "A tool to generate and check password strength",
-    lengthLabel: "Length",
+    lengthLabel: "Length (8-64)",
     lower: "Lowercase (a-z)",
     upper: "Uppercase (A-Z)",
     digits: "Digits (0-9)",
@@ -125,6 +128,9 @@ const I18N = {
     tipGood: "This password is strong enough",
     showPw: "Show password",
     hidePw: "Hide password",
+    clearHistory: "Clear history",
+    decLength: "Decrease length", 
+    incLength: "Increase length",
   }
 };
 
@@ -145,7 +151,14 @@ function applyLang(lang) {
   $("password").placeholder = t("passwordPlaceholder");
   $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
   $("toggleCheckBtn").title = $("checkInput").type === "password" ? t("showPw") : t("hidePw");
-  
+  $("clearHistoryBtn").textContent = t("clearHistory");
+  $("clearHistoryBtn").addEventListener("click", () => {
+    pwHistory.length = 0;
+    renderHistory();
+  });
+  $("decLengthBtn").title = t("decLength"); 
+  $("incLengthBtn").title = t("incLength");
+
   
   // Render lại text độ mạnh sau khi đổi ngôn ngữ
   showStrength(currentPw);
@@ -240,9 +253,49 @@ function refresh() {
   }
 }
 
-$("length").addEventListener("input", () => {
-  $("lengthValue").textContent = $("length").value;
+function setLength(val, autoRefresh = true) {
+  const min = Number($("length").min);
+  const max = Number($("length").max);
+  let num = Math.floor(Number(val));
+  if (Number.isNaN(num)) num = min;
+  num = Math.max(min, Math.min(max, num));
+
+  $("length").value = num;
+  $("lengthInput").value = num;
+  if (autoRefresh) refresh();
+}
+
+// Kéo thanh trượt
+$("length").addEventListener("input", e => {
+  setLength(e.target.value);
 });
+
+// Nhập trực tiếp vào ô số
+$("lengthInput").addEventListener("input", e => {
+  const val = e.target.value;
+  if (val === "") return; // Cho phép người dùng xóa tạm để gõ số mới
+  const num = Number(val);
+  if (num >= 8 && num <= 64) {
+    $("length").value = num;
+    refresh();
+  }
+});
+
+// Tự chuẩn hóa về khoảng 8-64 khi rời khỏi ô nhập hoặc nhấn Enter
+$("lengthInput").addEventListener("change", e => {
+  setLength(e.target.value);
+});
+
+// Nút giảm / tăng độ dài
+$("decLengthBtn").addEventListener("click", () => {
+  setLength(Number($("length").value) - 1);
+});
+
+$("incLengthBtn").addEventListener("click", () => {
+  setLength(Number($("length").value) + 1);
+});
+
+
 $("generateBtn").addEventListener("click", refresh);
 $("copyBtn").addEventListener("click", () => {
   navigator.clipboard.writeText($("password").value);

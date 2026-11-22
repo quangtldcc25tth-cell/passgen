@@ -27,8 +27,17 @@
       <div class="meter"><div id="meterBar"></div></div>
       <p id="strengthText"></p>
 
-      <label><span data-i18n="lengthLabel">Độ dài</span>: <span id="lengthValue">16</span></label>
-      <input id="length" type="range" min="8" max="64" value="16">
+      <div class="length-control">
+        <div class="length-header">
+          <label for="lengthInput" data-i18n="lengthLabel">Độ dài</label>
+          <div class="length-stepper">
+            <button id="decLengthBtn" type="button" title="Giảm độ dài">−</button>
+            <input id="lengthInput" type="number" min="8" max="64" value="16">
+            <button id="incLengthBtn" type="button" title="Tăng độ dài">+</button>
+          </div>
+        </div>
+        <input id="length" type="range" min="8" max="64" value="16">
+      </div>
 
       <label><input id="lower" type="checkbox" checked> <span data-i18n="lower">Chữ thường (a-z)</span></label>
       <label><input id="upper" type="checkbox" checked> <span data-i18n="upper">Chữ hoa (A-Z)</span></label>
@@ -49,7 +58,10 @@
     </section>
 
     <section class="history">
-      <h2 data-i18n="historyTitle">Lịch sử (tối đa 100 mật khẩu)</h2>
+      <div class="history-head">
+        <h2 data-i18n="historyTitle">Lịch sử (tối đa 100 mật khẩu)</h2>
+        <button id="clearHistoryBtn" type="button" data-i18n="clearHistory">Xóa lịch sử</button>
+      </div>
       <ul id="historyList"></ul>
     </section>
   </main>

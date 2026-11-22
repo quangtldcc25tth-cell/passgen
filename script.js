@@ -110,6 +110,8 @@ const I18N = {
     unitThousandYear: "nghìn năm",
     unitMillionYear: "triệu năm",
     crackOverBillion: "hơn 1 tỷ năm",
+    copy: "Sao chép",
+    copied: "Đã sao chép ✓",
   },
   en: {
     subtitle: "A tool to generate and check password strength",
@@ -151,6 +153,8 @@ const I18N = {
     unitThousandYear: "thousand years",
     unitMillionYear: "million years",
     crackOverBillion: "over 1 billion years",
+    copy: "Copy",
+    copied: "Copied ✓",
   }
 };
 
@@ -174,6 +178,10 @@ function applyLang(lang) {
   $("clearHistoryBtn").textContent = t("clearHistory");
   $("decLengthBtn").title = t("decLength");
   $("incLengthBtn").title = t("incLength");
+
+  clearTimeout($("copyBtn")._copyTimer);
+  $("copyBtn").textContent = t("copy");
+  $("copyBtn").title = t("copy");
 
   // Render lại text độ mạnh sau khi đổi ngôn ngữ
   showStrength(currentPw);
@@ -277,7 +285,7 @@ function renderHistory() {
     code.textContent = pw;
     const btn = document.createElement("button");
     btn.textContent = "⧉";
-    btn.addEventListener("click", () => navigator.clipboard.writeText(pw));
+    btn.addEventListener("click", () => copyText(pw, btn, "⧉"));
     li.append(code, " ", btn);
     list.appendChild(li);
   });
@@ -343,8 +351,19 @@ $("incLengthBtn").addEventListener("click", () => {
 });
 
 $("generateBtn").addEventListener("click", refresh);
+
+function copyText(text, btn, restoreLabel) {
+  if (!text) return;
+  navigator.clipboard.writeText(text);
+  clearTimeout(btn._copyTimer);
+  btn.textContent = t("copied");
+  btn._copyTimer = setTimeout(() => {
+    btn.textContent = typeof restoreLabel === "function" ? restoreLabel() : restoreLabel;
+  }, 1500);
+}
+
 $("copyBtn").addEventListener("click", () => {
-  navigator.clipboard.writeText($("password").value);
+  copyText($("password").value, $("copyBtn"), () => t("copy"));
 });
 $("checkInput").addEventListener("input", e => {
   showCheckResult(e.target.value);

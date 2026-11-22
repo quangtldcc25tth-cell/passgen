@@ -100,6 +100,16 @@ const I18N = {
     clearHistory: "Xóa lịch sử",
     decLength: "Giảm độ dài",
     incLength: "Tăng độ dài",
+    crackLabel: "Ước tính thời gian bẻ khóa:",
+    crackInstant: "gần như ngay lập tức",
+    unitSecond: "giây",
+    unitMinute: "phút",
+    unitHour: "giờ",
+    unitDay: "ngày",
+    unitYear: "năm",
+    unitThousandYear: "nghìn năm",
+    unitMillionYear: "triệu năm",
+    crackOverBillion: "hơn 1 tỷ năm",
   },
   en: {
     subtitle: "A tool to generate and check password strength",
@@ -129,8 +139,18 @@ const I18N = {
     showPw: "Show password",
     hidePw: "Hide password",
     clearHistory: "Clear history",
-    decLength: "Decrease length", 
+    decLength: "Decrease length",
     incLength: "Increase length",
+    crackLabel: "Estimated time to crack:",
+    crackInstant: "almost instantly",
+    unitSecond: "sec",
+    unitMinute: "min",
+    unitHour: "hr",
+    unitDay: "days",
+    unitYear: "years",
+    unitThousandYear: "thousand years",
+    unitMillionYear: "million years",
+    crackOverBillion: "over 1 billion years",
   }
 };
 
@@ -152,14 +172,9 @@ function applyLang(lang) {
   $("langBtn").textContent = lang === "vi" ? "Tiếng Việt" : "English";
   $("toggleCheckBtn").title = $("checkInput").type === "password" ? t("showPw") : t("hidePw");
   $("clearHistoryBtn").textContent = t("clearHistory");
-  $("clearHistoryBtn").addEventListener("click", () => {
-    pwHistory.length = 0;
-    renderHistory();
-  });
-  $("decLengthBtn").title = t("decLength"); 
+  $("decLengthBtn").title = t("decLength");
   $("incLengthBtn").title = t("incLength");
 
-  
   // Render lại text độ mạnh sau khi đổi ngôn ngữ
   showStrength(currentPw);
   showCheckResult($("checkInput").value);
@@ -178,12 +193,42 @@ function readOptions() {
   };
 }
 
+// Giả định kẻ tấn công thử 10 tỷ mật khẩu/giây (tấn công offline, phần cứng mạnh)
+const GUESSES_PER_SECOND = 1e10;
+
+function formatCrackTime(pw) {
+  if (!pw) return "";
+  // Mật khẩu chứa mẫu phổ biến coi như bị đoán ngay
+  if (evaluate(pw).key === "veryWeak") return t("crackInstant");
+
+  // Trung bình kẻ tấn công cần thử một nửa không gian mật khẩu
+  const seconds = Math.pow(2, estimateEntropy(pw) - 1) / GUESSES_PER_SECOND;
+  const MIN = 60, HOUR = 3600, DAY = 86400, YEAR = 31557600;
+
+  if (seconds < 1) return t("crackInstant");
+  if (seconds < MIN) return Math.round(seconds) + " " + t("unitSecond");
+  if (seconds < HOUR) return Math.round(seconds / MIN) + " " + t("unitMinute");
+  if (seconds < DAY) return Math.round(seconds / HOUR) + " " + t("unitHour");
+  if (seconds < YEAR) return Math.round(seconds / DAY) + " " + t("unitDay");
+
+  const years = seconds / YEAR;
+  if (years < 1e3) return Math.round(years) + " " + t("unitYear");
+  if (years < 1e6) return Math.round(years / 1e3) + " " + t("unitThousandYear");
+  if (years < 1e9) return Math.round(years / 1e6) + " " + t("unitMillionYear");
+  return t("crackOverBillion");
+}
+
+function crackText(pw) {
+  return pw ? t("crackLabel") + " " + formatCrackTime(pw) : "";
+}
+
 function showStrength(pw) {
   const r = evaluate(pw);
   const bar = $("meterBar");
   bar.style.width = r.width + "%";
   bar.style.background = r.color;
   $("strengthText").textContent = r.key ? t(r.key) : "";
+  $("crackGen").textContent = crackText(pw);
 }
 
 function getSuggestions(pw) {
@@ -213,6 +258,7 @@ function showSuggestions(value) {
 function showCheckResult(value) {
   const r = evaluate(value);
   $("checkResult").textContent = r.key ? t(r.key) : t("checkPlaceholderResult");
+  $("crackCheck").textContent = crackText(value);
 }
 
 // Lưu tối đa 100 mật khẩu ngẫu nhiên 
@@ -250,6 +296,7 @@ function refresh() {
     currentPw = "";
     $("password").value = "";
     $("strengthText").textContent = e.message;
+    $("crackGen").textContent = "";
   }
 }
 
@@ -295,7 +342,6 @@ $("incLengthBtn").addEventListener("click", () => {
   setLength(Number($("length").value) + 1);
 });
 
-
 $("generateBtn").addEventListener("click", refresh);
 $("copyBtn").addEventListener("click", () => {
   navigator.clipboard.writeText($("password").value);
@@ -313,6 +359,10 @@ $("toggleCheckBtn").addEventListener("click", () => {
 });
 $("langBtn").addEventListener("click", () => {
   applyLang(currentLang === "vi" ? "en" : "vi");
+});
+$("clearHistoryBtn").addEventListener("click", () => {
+  pwHistory.length = 0;
+  renderHistory();
 });
 
 // Chuyển đổi giao diện sáng / tối
